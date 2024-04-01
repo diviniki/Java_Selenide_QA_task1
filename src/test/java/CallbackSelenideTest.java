@@ -18,7 +18,6 @@ import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.ElementsCollection;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.support.ui.Wait;
 
 import java.time.Duration;
 
@@ -28,13 +27,18 @@ import static com.codeborne.selenide.Selectors.withText;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 import static com.codeborne.selenide.Selenide.open;
-import static com.codeborne.selenide.Selenide.Wait;
-
+import static java.time.LocalDate.now;
+import java.time.format.DateTimeFormatter;
 
 class CallbackSelenideTest {
+
+    public String generateDate(int days) {
+        return now().plusDays(days).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+    }
     @Test
     void shouldTest() {
-        LocalDate localDate = new LocalDate();
+
+        String planningDate = generateDate(4);
 
 
         open("http://localhost:9999");
@@ -43,13 +47,12 @@ class CallbackSelenideTest {
 
         form.find("[data-test-id=city] input").setValue("Москва");
         form.find("[data-test-id=date] input").doubleClick().sendKeys(Keys.DELETE);
-        form.find("[data-test-id=date] input").setValue(localDate.s_current_date);
+        form.find("[data-test-id=date] input").setValue(planningDate);
         form.find("[data-test-id=name] input").setValue("Васильев Василий");
         form.find("[data-test-id=phone] input").setValue("+79270000000");
         form.find("[data-test-id='agreement']").click();
         button.get(1).click();
-        $(withText("Встреча успешно забронирована")).shouldBe(visible, Duration.ofSeconds(12));
-        //Wait();
-        //$("[data-test-id=notification]").find("Встреча успешно забронирована").shouldBe(visible);
+        //$(withText("Встреча успешно забронирована")).shouldBe(visible, Duration.ofSeconds(12));
+        $(".notification__content").shouldBe(visible, Duration.ofSeconds(12)).shouldHave(exactText("Встреча успешно забронирована на " + planningDate));
     }
 }
